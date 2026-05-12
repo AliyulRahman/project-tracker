@@ -17,3 +17,10 @@ Thumbs.db
 .vscode/
 *.suo
 *.user
+
+node.exe
+
+./dist
+dist/
+build/
+dist/
