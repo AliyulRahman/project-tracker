@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevTracker — Daily Progress</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ── Sidebar ────────────────────────────────────────────────────── -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">DevTracker</div>
+      <div class="logo-sub">Daily Progress Tracker</div>
+    </div>
+    <ul class="nav-links">
+      <li class="nav-item active" data-section="dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
+        Dashboard
+      </li>
+      <li class="nav-item" data-section="new-entry">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        New Entry
+      </li>
+      <li class="nav-item" data-section="entries">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        All Entries
+      </li>
+      <li class="nav-item" data-section="jira-items">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 12h6M9 16h4"/></svg>
+        Jira Items
+      </li>
+      <li class="nav-item" data-section="settings">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ── Main ───────────────────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <header class="top-header">
+      <h1 class="page-title" id="page-title">Dashboard</h1>
+      <span class="date-display" id="current-date"></span>
+    </header>
+
+    <!-- ── Dashboard ──────────────────────────────────────────────── -->
+    <section id="section-dashboard" class="section active">
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-today">0</div>
+          <div class="stat-label">Entries Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-completion">—</div>
+          <div class="stat-label">Avg Completion (Today)</div>
+        </div>
+        <div class="stat-card stat-ai">
+          <div class="stat-value" id="stat-ai">—</div>
+          <div class="stat-label">Avg AI Usage (Today)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">Total Entries</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <h2>Today's Summary</h2>
+            <span class="badge" id="today-label"></span>
+          </div>
+          <div id="today-entries"><div class="empty-state">No entries for today yet.</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Developer Progress (Today)</h2></div>
+          <div id="dev-progress"><div class="empty-state">No data available.</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Recent Entries</h2>
+          <button class="btn btn-sm btn-ghost" onclick="showSection('entries')">View All →</button>
+        </div>
+        <div id="recent-entries"><div class="empty-state">No entries found.</div></div>
+      </div>
+
+    </section>
+
+    <!-- ── New Entry ───────────────────────────────────────────────── -->
+    <section id="section-new-entry" class="section">
+
+      <!-- Date bar -->
+      <div class="card">
+        <div class="entry-date-bar">
+          <label class="date-bar-label" for="entry-date">
+            <svg viewBox="0 0 24 24" class="date-icon"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Entry Date <span class="req">*</span>
+          </label>
+          <input type="date" id="entry-date">
+          <span class="date-bar-hint" id="entry-form-title">Add one or more rows below, then click <strong>Save All Entries</strong>.</span>
+        </div>
+      </div>
+
+      <!-- Entry grid -->
+      <div class="card">
+        <div class="table-wrapper">
+          <table class="entry-grid-table" id="entry-grid">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th class="col-jira">Jira Item <span class="req">*</span></th>
+                <th class="col-dev">Developer <span class="req">*</span></th>
+                <th class="col-activity">Activity Details <span class="req">*</span></th>
+                <th class="col-pct">Completion %</th>
+                <th class="col-pct">AI Usage %</th>
+                <th class="col-aidesc">AI Usage — Description</th>
+                <th class="col-del"></th>
+              </tr>
+            </thead>
+            <tbody id="entry-rows"></tbody>
+          </table>
+        </div>
+
+        <div class="grid-footer">
+          <button class="btn btn-ghost" onclick="addEntryRow()">+ Add Row</button>
+          <div class="grid-footer-right">
+            <button class="btn btn-secondary" onclick="clearAllRows()">Clear All</button>
+            <button class="btn btn-primary" onclick="saveAllEntries()">Save All Entries</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email CTA -->
+      <div class="email-cta-card">
+        <button class="btn btn-email" disabled>
+          <svg viewBox="0 0 24 24" class="email-icon"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email Daily Tracker
+        </button>
+        <span class="email-note">
+          <svg viewBox="0 0 24 24" class="info-icon"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          Email functionality will be added in a future update.
+        </span>
+      </div>
+
+    </section>
+
+    <!-- ── All Entries ─────────────────────────────────────────────── -->
+    <section id="section-entries" class="section">
+      <div class="card">
+        <div class="card-header">
+          <h2>All Entries</h2>
+          <button class="btn btn-sm btn-ghost" onclick="exportCSV()">↓ Export CSV</button>
+        </div>
+
+        <div class="filters">
+          <div class="filter-group">
+            <label>Developer</label>
+            <select id="filter-developer"><option value="">All Developers</option></select>
+          </div>
+          <div class="filter-group">
+            <label>From Date</label>
+            <input type="date" id="filter-date-from">
+          </div>
+          <div class="filter-group">
+            <label>To Date</label>
+            <input type="date" id="filter-date-to">
+          </div>
+          <div class="filter-group">
+            <label>Jira Item</label>
+            <select id="filter-jira"><option value="">All Items</option></select>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-primary btn-sm" onclick="applyFilters()">Apply</button>
+            <button class="btn btn-secondary btn-sm" onclick="clearFilters()">Clear</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Jira Item</th>
+                <th>Developer</th>
+                <th>Activity Details</th>
+                <th>Completion %</th>
+                <th>AI Usage %</th>
+                <th>AI Description</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="entries-tbody">
+              <tr><td colspan="8" class="empty-cell">No entries found.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Jira Items ──────────────────────────────────────────────── -->
+    <section id="section-jira-items" class="section">
+      <div class="split-layout">
+
+        <div class="card">
+          <div class="card-header"><h2>Add Jira Item</h2></div>
+          <form id="jira-form" class="form-stack">
+            <div class="form-group">
+              <label for="jira-id">Jira ID <span class="req">*</span></label>
+              <input type="text" id="jira-id" placeholder="e.g. PROJ-123" required>
+            </div>
+            <div class="form-group">
+              <label for="jira-title">Title <span class="req">*</span></label>
+              <input type="text" id="jira-title" placeholder="Brief description of the item" required>
+            </div>
+            <div class="form-group">
+              <label for="jira-url">Jira URL</label>
+              <input type="url" id="jira-url"
+                placeholder="https://yourcompany.atlassian.net/browse/PROJ-123">
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="jira-active" checked>
+                <span class="checkbox-text">Active</span>
+              </label>
+              <span class="field-hint">Inactive items are hidden from New Entry</span>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Add Item</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h2>Jira Items Master List</h2></div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Jira ID</th>
+                  <th>Title</th>
+                  <th>URL</th>
+                  <th style="text-align:center">Active</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="jira-tbody">
+                <tr><td colspan="4" class="empty-cell">No Jira items added yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Settings ────────────────────────────────────────────────── -->
+    <section id="section-settings" class="section">
+      <div class="card" style="max-width:560px">
+        <div class="card-header"><h2>Developer Names</h2></div>
+        <form id="settings-form">
+          <div id="dev-inputs"></div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
