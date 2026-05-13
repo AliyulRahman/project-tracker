@@ -175,6 +175,15 @@ router.put('/:id', async (req, res) => {
        WHERE EntryId = @id`
     );
     if (result.rowsAffected[0] === 0) return res.status(404).json({ error: 'Not found' });
+
+    // Fetch full entry (with jiraId/jiraTitle) to send email summary
+    const updated = await db.request()
+      .input('id', sql.UniqueIdentifier, req.params.id)
+      .query(`${ENTRY_SELECT} WHERE e.EntryId = @id`);
+    sendEntrySummary(db, updated.recordset).catch(err =>
+      console.error('[Email] edit send failed:', err.message)
+    );
+
     res.json({ id: req.params.id, jiraItemId, developer, entryDate, activityDetails, completion, aiUsage, aiDescription });
   } catch (err) {
     res.status(500).json({ error: err.message });

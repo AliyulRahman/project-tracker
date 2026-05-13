@@ -1,6 +1,10 @@
 async function loadEntries() {
   const params   = new URLSearchParams();
-  const dev      = document.getElementById('filter-developer').value;
+  const session  = getSession();
+  const isAdmin  = session?.role === 'admin';
+
+  // Developers see only their own entries; the filter dropdown is hidden for them
+  const dev = isAdmin ? document.getElementById('filter-developer').value : session?.name;
   const dateFrom = document.getElementById('filter-date-from').value;
   const dateTo   = document.getElementById('filter-date-to').value;
   const jira     = document.getElementById('filter-jira').value;
@@ -72,7 +76,11 @@ function clearFilters() {
 }
 
 async function exportCSV() {
-  const entries = await apiGet('/api/entries');
+  const session = getSession();
+  const devParam = session?.role !== 'admin' && session?.name
+    ? `?developer=${encodeURIComponent(session.name)}`
+    : '';
+  const entries = await apiGet('/api/entries' + devParam);
   if (!entries.length) { toast('No entries to export', 'error'); return; }
 
   const headers = ['Date', 'Jira ID', 'Jira Title', 'Developer', 'Activity Details', 'Completion %', 'AI Usage %', 'AI Description'];

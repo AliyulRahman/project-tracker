@@ -1,3 +1,5 @@
+var jiraEditId = null;
+
 function isActive(j) {
   return j.active !== false;
 }
@@ -22,15 +24,67 @@ async function loadJiraItemsList() {
       <td>${esc(j.title)}</td>
       <td>${j.url
         ? `<a href="${esc(j.url)}" target="_blank" rel="noopener" class="jira-link">Open ↗</a>`
-        : '<span style="color:var(--text-muted)">—</span>'}</td>
-      <td style="text-align:center">
+        : '<span class="text-muted-sm">—</span>'}</td>
+      <td class="col-center">
         <input type="checkbox" class="active-toggle" ${isActive(j) ? 'checked' : ''}
           onchange="toggleJiraActive('${j.id}', this.checked)" title="Toggle active">
       </td>
-      <td>
-        <button class="btn-icon-del" onclick="deleteJiraItem('${j.id}')">Delete</button>
+      <td style="white-space:nowrap">
+        <button class="btn-icon-edit" onclick="editJiraItem('${j.id}')">Edit</button>
+        <button class="btn-icon-del"  onclick="deleteJiraItem('${j.id}')">Delete</button>
       </td>
     </tr>`).join('');
+}
+
+function editJiraItem(id) {
+  const j = jiraItems.find(i => i.id === id);
+  if (!j) return;
+  jiraEditId = id;
+  document.getElementById('jira-form-title').textContent     = 'Edit Jira Item';
+  document.getElementById('jira-edit-id').value              = id;
+  document.getElementById('jira-id').value                   = j.jiraId;
+  document.getElementById('jira-title').value                = j.title;
+  document.getElementById('jira-url').value                  = j.url || '';
+  document.getElementById('jira-active').checked             = isActive(j);
+  document.getElementById('jira-submit-btn').textContent     = 'Save Changes';
+  document.getElementById('jira-cancel-btn').classList.remove('hidden');
+  document.getElementById('jira-id').focus();
+}
+
+function cancelEditJiraItem() {
+  jiraEditId = null;
+  document.getElementById('jira-form').reset();
+  document.getElementById('jira-form-title').textContent  = 'Add Jira Item';
+  document.getElementById('jira-edit-id').value           = '';
+  document.getElementById('jira-submit-btn').textContent  = 'Add Item';
+  document.getElementById('jira-cancel-btn').classList.add('hidden');
+  document.getElementById('jira-active').checked          = true;
+}
+
+async function submitJiraItem(e) {
+  e.preventDefault();
+  const jiraId = document.getElementById('jira-id').value.trim();
+  const title  = document.getElementById('jira-title').value.trim();
+  const url    = document.getElementById('jira-url').value.trim() || null;
+  const active = document.getElementById('jira-active').checked;
+
+  const duplicate = jiraItems.some(i =>
+    i.jiraId.toLowerCase() === jiraId.toLowerCase() && i.id !== jiraEditId
+  );
+  if (duplicate) { toast('Jira ID already exists', 'error'); return; }
+
+  if (jiraEditId) {
+    const result = await apiPut(`/api/jira-items/${jiraEditId}`, { jiraId, title, url, active });
+    if (result.error) { toast(result.error, 'error'); return; }
+    toast('Jira item updated');
+  } else {
+    const result = await apiPost('/api/jira-items', { jiraId, title, url, active });
+    if (result.error) { toast(result.error, 'error'); return; }
+    toast('Jira item added');
+  }
+
+  cancelEditJiraItem();
+  await loadJiraItemsList();
 }
 
 async function toggleJiraActive(id, active) {
@@ -43,28 +97,10 @@ async function toggleJiraActive(id, active) {
   });
 }
 
-async function submitJiraItem(e) {
-  e.preventDefault();
-  const jiraId = document.getElementById('jira-id').value.trim();
-  const title  = document.getElementById('jira-title').value.trim();
-  const url    = document.getElementById('jira-url').value.trim();
-  const active = document.getElementById('jira-active').checked;
-
-  if (jiraItems.some(i => i.jiraId.toLowerCase() === jiraId.toLowerCase())) {
-    toast('Jira ID already exists', 'error');
-    return;
-  }
-
-  await apiPost('/api/jira-items', { jiraId, title, url, active });
-  document.getElementById('jira-form').reset();
-  document.getElementById('jira-active').checked = true;
-  await loadJiraItemsList();
-  toast('Jira item added');
-}
-
 async function deleteJiraItem(id) {
   if (!confirm('Delete this Jira item?')) return;
-  await apiDelete(`/api/jira-items/${id}`);
+  const result = await apiDelete(`/api/jira-items/${id}`);
+  if (result.error) { toast(result.error, 'error'); return; }
   await loadJiraItemsList();
   toast('Jira item deleted');
 }

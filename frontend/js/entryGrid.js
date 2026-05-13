@@ -15,6 +15,16 @@ function devOptsHTML(selectedDev = '') {
 }
 
 function addEntryRow(data = {}) {
+  const session = getSession();
+  const isAdmin = session?.role === 'admin';
+  const devName = data.developer || (session?.name ?? '');
+
+  const devCellHtml = isAdmin
+    ? `<select class="row-dev cell-select">${devOptsHTML(devName)}</select>`
+    : `<select class="row-dev cell-select cell-select-locked" disabled>
+         <option value="${esc(devName)}" selected>${esc(devName)}</option>
+       </select>`;
+
   rowCounter++;
   const id = rowCounter;
   const tr = document.createElement('tr');
@@ -25,7 +35,7 @@ function addEntryRow(data = {}) {
   tr.innerHTML = `
     <td class="row-num"></td>
     <td><select class="row-jira cell-select">${jiraOptsHTML(data.jiraItemId || '')}</select></td>
-    <td><select class="row-dev cell-select">${devOptsHTML(data.developer || '')}</select></td>
+    <td>${devCellHtml}</td>
     <td>
       <input type="text" class="row-activity cell-text"
         value="${esc(data.activityDetails || '')}" placeholder="One-line task summary…" maxlength="500">
@@ -150,7 +160,11 @@ async function loadEntriesForDate(date) {
   const card = document.getElementById('date-preview-card');
   if (!date) { card.classList.add('hidden'); return; }
 
-  const entries = await apiGet(`/api/entries?dateFrom=${date}&dateTo=${date}`);
+  const session  = getSession();
+  const devParam = session?.role !== 'admin' && session?.name
+    ? `&developer=${encodeURIComponent(session.name)}`
+    : '';
+  const entries = await apiGet(`/api/entries?dateFrom=${date}&dateTo=${date}${devParam}`);
   datePreviewEntries = entries;
 
   if (!entries.length) { card.classList.add('hidden'); return; }

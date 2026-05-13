@@ -143,3 +143,18 @@ FROM (
         )
 ) AS e (EntryId, JiraItemId, DeveloperName, EntryDate, ActivityDetails, Completion, AiUsage, AiDescription, CreatedAt)
 JOIN dbo.ProjectTracker_Developers d ON d.Name = e.DeveloperName;
+
+-- Add Password and Role columns to Developers table
+ALTER TABLE dbo.ProjectTracker_Developers
+  ADD [Password] NVARCHAR(255) NULL,
+      [Role]     NVARCHAR(50)  NOT NULL DEFAULT 'developer';
+
+-- Set a default password for existing rows (change as needed)
+UPDATE dbo.ProjectTracker_Developers
+SET [Password] = NULL
+WHERE [Password] IS NULL;
+
+-- Optional: add a check constraint to limit role values
+ALTER TABLE dbo.ProjectTracker_Developers
+  ADD CONSTRAINT CK_Developers_Role
+    CHECK ([Role] IN ('admin', 'developer', 'viewer'));

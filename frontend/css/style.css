@@ -326,6 +326,7 @@ body {
 .form-group input[type="text"],
 .form-group input[type="date"],
 .form-group input[type="url"],
+.form-group input[type="password"],
 .form-group select,
 .form-group textarea {
   padding: 8px 11px;
@@ -739,6 +740,14 @@ a.jira-link:hover { text-decoration: underline; }
   box-shadow: 0 0 0 2px rgba(37,99,235,0.12);
 }
 
+.cell-select-locked {
+  opacity: 1;
+  background: #f8fafc;
+  color: var(--text);
+  cursor: default;
+  pointer-events: none;
+}
+
 .pct-wrap {
   display: flex;
   align-items: center;
@@ -868,7 +877,26 @@ a.jira-link:hover { text-decoration: underline; }
   flex-shrink: 0;
 }
 
-.hidden { display: none !important; }
+.hidden    { display: none !important; }
+.col-center { text-align: center; }
+
+/* ── Developer table ───────────────────────────────────────────────────────── */
+.dev-row          { cursor: pointer; }
+.dev-row:hover td { background: #f0f7ff !important; }
+.pwd-cell         { font-family: monospace; letter-spacing: .1em; font-size: 13px; color: var(--text-muted); }
+.text-muted-sm    { font-size: 12px; color: var(--text-muted); font-style: italic; opacity: .6; }
+
+/* ── Role badge ────────────────────────────────────────────────────────────── */
+.role-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.role-admin     { background: #fef3c7; color: #92400e; }
+.role-developer { background: var(--primary-light); color: var(--primary); }
 
 .ai-desc-cell { font-size: 12px; color: var(--text-muted); }
 
@@ -923,4 +951,86 @@ a.jira-link:hover { text-decoration: underline; }
 
 @media (max-width: 800px) {
   .split-layout { grid-template-columns: 1fr; }
+}
+
+/* ── Login page ────────────────────────────────────────────────────────────── */
+body.login-page {
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 44px 40px 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+}
+
+.login-logo {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+
+.login-sub {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-bottom: 32px;
+}
+
+.login-error {
+  background: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid rgba(220,38,38,0.25);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.login-btn { width: 100%; }
+
+/* ── Header user pill ──────────────────────────────────────────────────────── */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.user-name-display {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
 }

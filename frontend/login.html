@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevTracker — Sign In</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+
+  <div class="login-card">
+    <div class="login-logo">DevTracker</div>
+    <div class="login-sub">Daily Progress Tracker</div>
+
+    <form id="login-form" class="form-stack" onsubmit="submitLogin(event)">
+      <div class="form-group">
+        <label for="login-developer">Developer</label>
+        <select id="login-developer" required>
+          <option value="">— Select your name —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Enter your password"
+               required autocomplete="current-password">
+      </div>
+      <div id="login-error" class="login-error hidden"></div>
+      <button type="submit" class="btn btn-primary login-btn" id="login-btn">Sign In</button>
+    </form>
+  </div>
+
+  <script>
+    // Redirect if already logged in
+    if (sessionStorage.getItem('devtracker_user')) {
+      window.location.href = '/';
+    }
+
+    async function loadDevelopers() {
+      try {
+        const res  = await fetch('/api/auth/developers');
+        const list = await res.json();
+        const sel  = document.getElementById('login-developer');
+        list.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value       = d.id;
+          opt.textContent = d.name;
+          sel.appendChild(opt);
+        });
+      } catch {
+        showError('Could not load developer list. Is the server running?');
+      }
+    }
+
+    async function submitLogin(e) {
+      e.preventDefault();
+      const developerId = document.getElementById('login-developer').value;
+      const password    = document.getElementById('login-password').value;
+      const btn         = document.getElementById('login-btn');
+
+      btn.disabled    = true;
+      btn.textContent = 'Signing in…';
+      hideError();
+
+      try {
+        const res  = await fetch('/api/auth/login', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ developerId, password }),
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          showError(data.error);
+          btn.disabled    = false;
+          btn.textContent = 'Sign In';
+          return;
+        }
+
+        sessionStorage.setItem('devtracker_user', JSON.stringify(data.developer));
+        window.location.href = '/';
+      } catch {
+        showError('Connection error. Please try again.');
+        btn.disabled    = false;
+        btn.textContent = 'Sign In';
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('login-error');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function hideError() {
+      document.getElementById('login-error').classList.add('hidden');
+    }
+
+    loadDevelopers();
+  </script>
+
+</body>
+</html>

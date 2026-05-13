@@ -29,7 +29,7 @@ function showSection(id) {
   if (id === 'dashboard')  loadDashboard();
   if (id === 'entries')    loadEntries();
   if (id === 'jira-items') loadJiraItemsList();
-  if (id === 'settings')   renderSettings();
+  if (id === 'settings')   loadDevelopers();
   if (id === 'new-entry' && !currentEditId) resetGrid();
 }
 
@@ -46,14 +46,46 @@ function populateDevDropdowns() {
     `<option value="">All Developers</option>${opts}`;
 }
 
+/* ── Auth ────────────────────────────────────────────────────────────────────*/
+function getSession() {
+  return JSON.parse(sessionStorage.getItem('devtracker_user') || 'null');
+}
+
+function logout() {
+  sessionStorage.removeItem('devtracker_user');
+  window.location.href = '/login.html';
+}
+
 /* ── Boot ────────────────────────────────────────────────────────────────────*/
 document.addEventListener('DOMContentLoaded', async () => {
+  const session = getSession();
+  if (!session) { window.location.href = '/login.html'; return; }
+
+  // Show logged-in user in header
+  const initials = session.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+  document.getElementById('user-avatar').textContent     = initials;
+  document.getElementById('current-user').textContent    = session.name;
+
+  // Restrict nav and UI for non-admins
+  const isAdmin = session.role === 'admin';
+  if (!isAdmin) {
+    ['dashboard', 'jira-items', 'settings'].forEach(s =>
+      document.querySelector(`[data-section="${s}"]`)?.classList.add('hidden')
+    );
+    // Hide developer filter in All Entries (developers only see their own entries)
+    document.getElementById('filter-developer')?.closest('.filter-group')?.classList.add('hidden');
+  }
+
   updateDateDisplay();
   setupNavigation();
   document.getElementById('jira-form').addEventListener('submit', submitJiraItem);
-  document.getElementById('settings-form').addEventListener('submit', saveSettings);
+  document.getElementById('dev-form').addEventListener('submit', submitDeveloperForm);
   await loadConfig();
   await loadJiraItems();
-  resetGrid();
-  await loadDashboard();
+
+  if (isAdmin) {
+    await loadDashboard();
+  } else {
+    showSection('new-entry');
+  }
 });

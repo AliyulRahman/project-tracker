@@ -43,7 +43,14 @@
 
     <header class="top-header">
       <h1 class="page-title" id="page-title">Dashboard</h1>
-      <span class="date-display" id="current-date"></span>
+      <div class="header-right">
+        <span class="date-display" id="current-date"></span>
+        <div class="user-pill">
+          <span class="user-avatar" id="user-avatar"></span>
+          <span class="user-name-display" id="current-user"></span>
+          <button class="btn btn-sm btn-ghost" onclick="logout()">Sign Out</button>
+        </div>
+      </div>
     </header>
 
     <!-- ── Dashboard ──────────────────────────────────────────────── -->
@@ -213,8 +220,9 @@
       <div class="split-layout">
 
         <div class="card">
-          <div class="card-header"><h2>Add Jira Item</h2></div>
+          <div class="card-header"><h2 id="jira-form-title">Add Jira Item</h2></div>
           <form id="jira-form" class="form-stack">
+            <input type="hidden" id="jira-edit-id">
             <div class="form-group">
               <label for="jira-id">Jira ID <span class="req">*</span></label>
               <input type="text" id="jira-id" placeholder="e.g. PROJ-123" required>
@@ -225,7 +233,7 @@
             </div>
             <div class="form-group">
               <label for="jira-url">Jira URL</label>
-              <input type="url" id="jira-url"
+              <input type="text" id="jira-url"
                 placeholder="https://yourcompany.atlassian.net/browse/PROJ-123">
             </div>
             <div class="form-group">
@@ -236,7 +244,8 @@
               <span class="field-hint">Inactive items are hidden from New Entry</span>
             </div>
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary">Add Item</button>
+              <button type="submit" class="btn btn-primary" id="jira-submit-btn">Add Item</button>
+              <button type="button" class="btn btn-secondary hidden" id="jira-cancel-btn" onclick="cancelEditJiraItem()">Cancel</button>
             </div>
           </form>
         </div>
@@ -250,12 +259,12 @@
                   <th>Jira ID</th>
                   <th>Title</th>
                   <th>URL</th>
-                  <th style="text-align:center">Active</th>
-                  <th>Actions</th>
+                  <th class="col-center">Active</th>
+                  <th><span class="sr-only">Actions</span></th>
                 </tr>
               </thead>
               <tbody id="jira-tbody">
-                <tr><td colspan="4" class="empty-cell">No Jira items added yet.</td></tr>
+                <tr><td colspan="5" class="empty-cell">No Jira items added yet.</td></tr>
               </tbody>
             </table>
           </div>
@@ -266,14 +275,62 @@
 
     <!-- ── Settings ────────────────────────────────────────────────── -->
     <section id="section-settings" class="section">
-      <div class="card" style="max-width:560px">
-        <div class="card-header"><h2>Developer Names</h2></div>
-        <form id="settings-form">
-          <div id="dev-inputs"></div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Save Settings</button>
+      <div class="split-layout">
+
+        <!-- Add / Edit form -->
+        <div class="card">
+          <div class="card-header"><h2 id="dev-form-title">Add Developer</h2></div>
+          <form id="dev-form" class="form-stack">
+            <input type="hidden" id="dev-edit-id">
+            <div class="form-group">
+              <label for="dev-name">Name <span class="req">*</span></label>
+              <input type="text" id="dev-name" placeholder="Full name" required>
+            </div>
+            <div class="form-group">
+              <label for="dev-password">Password <span class="req">*</span></label>
+              <input type="password" id="dev-password" placeholder="Password" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+              <label for="dev-role">Role <span class="req">*</span></label>
+              <select id="dev-role">
+                <option value="developer">Developer</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="dev-active" checked>
+                <span class="checkbox-text">Active</span>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="dev-submit-btn">Add Developer</button>
+              <button type="button" class="btn btn-secondary hidden" id="dev-cancel-btn" onclick="cancelEditDeveloper()">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Developer list -->
+        <div class="card">
+          <div class="card-header"><h2>Developers</h2></div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Password</th>
+                  <th>Role</th>
+                  <th class="col-center">Active</th>
+                  <th><span class="sr-only">Remove</span></th>
+                </tr>
+              </thead>
+              <tbody id="dev-tbody">
+                <tr><td colspan="4" class="empty-cell">No developers found.</td></tr>
+              </tbody>
+            </table>
           </div>
-        </form>
+        </div>
+
       </div>
     </section>
 
