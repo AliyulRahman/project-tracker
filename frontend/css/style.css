@@ -80,6 +80,7 @@ body {
   font-weight: 500;
   transition: background 0.12s, color 0.12s;
   border-left: 3px solid transparent;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -865,6 +866,53 @@ a.jira-link:hover { text-decoration: underline; }
   stroke-linecap: round;
   stroke-linejoin: round;
   flex-shrink: 0;
+}
+
+.hidden { display: none !important; }
+
+.ai-desc-cell { font-size: 12px; color: var(--text-muted); }
+
+/* ── New Entry two-panel layout ────────────────────────────────────────────── */
+
+/* Section never scrolls — each panel manages its own overflow */
+#section-new-entry { overflow: hidden !important; }
+
+/* Top panel: date bar + entry grid — never shrinks, always fully visible */
+.entry-form-panel {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Bottom panel: existing entries — grows to fill remaining height */
+#date-preview-card { overflow: visible; }
+
+#date-preview-card:not(.hidden) {
+  flex: 1;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+#date-preview-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.preview-scroll { height: 100%; overflow-y: scroll; overflow-x: auto; }
+
+/* Screen-reader-only label for empty table header */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ── Responsive ────────────────────────────────────────────────────────────── */

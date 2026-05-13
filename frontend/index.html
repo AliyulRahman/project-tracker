@@ -95,57 +95,62 @@
     <!-- ── New Entry ───────────────────────────────────────────────── -->
     <section id="section-new-entry" class="section">
 
-      <!-- Date bar -->
-      <div class="card">
-        <div class="entry-date-bar">
-          <label class="date-bar-label" for="entry-date">
-            <svg viewBox="0 0 24 24" class="date-icon"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            Entry Date <span class="req">*</span>
-          </label>
-          <input type="date" id="entry-date">
-          <span class="date-bar-hint" id="entry-form-title">Add one or more rows below, then click <strong>Save All Entries</strong>.</span>
-        </div>
-      </div>
+      <!-- Fixed form panel: always visible regardless of preview below -->
+      <div class="entry-form-panel">
 
-      <!-- Entry grid -->
-      <div class="card">
-        <div class="table-wrapper">
-          <table class="entry-grid-table" id="entry-grid">
-            <thead>
-              <tr>
-                <th class="col-num">#</th>
-                <th class="col-jira">Jira Item <span class="req">*</span></th>
-                <th class="col-dev">Developer <span class="req">*</span></th>
-                <th class="col-activity">Activity Details <span class="req">*</span></th>
-                <th class="col-pct">Completion %</th>
-                <th class="col-pct">AI Usage %</th>
-                <th class="col-aidesc">AI Usage — Description</th>
-                <th class="col-del"></th>
-              </tr>
-            </thead>
-            <tbody id="entry-rows"></tbody>
-          </table>
-        </div>
-
-        <div class="grid-footer">
-          <button class="btn btn-ghost" onclick="addEntryRow()">+ Add Row</button>
-          <div class="grid-footer-right">
-            <button class="btn btn-secondary" onclick="clearAllRows()">Clear All</button>
-            <button class="btn btn-primary" onclick="saveAllEntries()">Save All Entries</button>
+        <!-- Date bar -->
+        <div class="card">
+          <div class="entry-date-bar">
+            <label class="date-bar-label" for="entry-date">
+              <svg viewBox="0 0 24 24" class="date-icon"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              Entry Date <span class="req">*</span>
+            </label>
+            <input type="date" id="entry-date">
+            <span class="date-bar-hint" id="entry-form-title">Add one or more rows below, then click <strong>Save All Entries</strong>.</span>
           </div>
         </div>
+
+        <!-- Entry grid -->
+        <div class="card" id="entry-grid-card">
+          <div class="table-wrapper">
+            <table class="entry-grid-table" id="entry-grid">
+              <thead>
+                <tr>
+                  <th class="col-num">#</th>
+                  <th class="col-jira">Jira Item <span class="req">*</span></th>
+                  <th class="col-dev">Developer <span class="req">*</span></th>
+                  <th class="col-activity">Activity Details <span class="req">*</span></th>
+                  <th class="col-pct">Completion %</th>
+                  <th class="col-pct">AI Usage %</th>
+                  <th class="col-aidesc">AI Usage — Description</th>
+                  <th class="col-del"><span class="sr-only">Remove</span></th>
+                </tr>
+              </thead>
+              <tbody id="entry-rows"></tbody>
+            </table>
+          </div>
+
+          <div class="grid-footer">
+            <button class="btn btn-ghost" onclick="addEntryRow()">+ Add Row</button>
+            <div class="grid-footer-right">
+              <button type="button" class="btn btn-secondary" onclick="clearAllRows()">Clear All</button>
+              <button type="button" class="btn btn-primary" onclick="saveAllEntries()">Save All Entries</button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Email CTA -->
-      <div class="email-cta-card">
-        <button class="btn btn-email" disabled>
-          <svg viewBox="0 0 24 24" class="email-icon"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          Email Daily Tracker
-        </button>
-        <span class="email-note">
-          <svg viewBox="0 0 24 24" class="info-icon"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-          Email functionality will be added in a future update.
-        </span>
+      <!-- Existing entries for selected date: fills remaining height -->
+      <div id="date-preview-card" class="card hidden">
+        <div class="card-header">
+          <h2 id="date-preview-title">Existing Entries</h2>
+          <button type="button" class="btn btn-sm btn-secondary" id="clone-btn" onclick="cloneEntriesToToday()">
+            ⧉ Clone to Today
+          </button>
+        </div>
+        <div id="date-preview-body"></div>
+      </div>
       </div>
 
     </section>

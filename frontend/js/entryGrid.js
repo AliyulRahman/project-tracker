@@ -101,16 +101,19 @@ async function saveAllEntries() {
   if (hasError)    { toast('Fill in the highlighted required fields', 'error'); return; }
   if (!toSave.length) { toast('No rows to save', 'error'); return; }
 
-  for (const { _editId, ...payload } of toSave) {
-    if (_editId) {
-      await apiPut(`/api/entries/${_editId}`, payload);
-    } else {
-      await apiPost('/api/entries', payload);
-    }
+  const edits    = toSave.filter(e =>  e._editId);
+  const newEntries = toSave.filter(e => !e._editId);
+
+  for (const { _editId, ...payload } of edits) {
+    await apiPut(`/api/entries/${_editId}`, payload);
+  }
+
+  if (newEntries.length) {
+    await apiPost('/api/entries/batch', newEntries);
   }
 
   const n = toSave.length;
-  toast(`${n} entr${n > 1 ? 'ies' : 'y'} saved`);
+  toast(`${n} entr${n > 1 ? 'ies' : 'y'} saved — summary email sent`);
   currentEditId = null;
   resetGrid();
   showSection('entries');
@@ -126,8 +129,112 @@ function resetGrid() {
   currentEditId = null;
   rowCounter    = 0;
   document.getElementById('entry-rows').innerHTML = '';
-  document.getElementById('entry-date').value     = todayISO();
+  const today = todayISO();
+  document.getElementById('entry-date').value = today;
   document.getElementById('entry-form-title').innerHTML =
     'Add one or more rows below, then click <strong>Save All Entries</strong>.';
   addEntryRow();
+  loadEntriesForDate(today);
+}
+
+/* ── Date preview & clone ────────────────────────────────────────────────────*/
+var datePreviewEntries = [];
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('entry-date').addEventListener('change', function () {
+    loadEntriesForDate(this.value);
+  });
+});
+
+async function loadEntriesForDate(date) {
+  const card = document.getElementById('date-preview-card');
+  if (!date) { card.classList.add('hidden'); return; }
+
+  const entries = await apiGet(`/api/entries?dateFrom=${date}&dateTo=${date}`);
+  datePreviewEntries = entries;
+
+  if (!entries.length) { card.classList.add('hidden'); return; }
+
+  document.getElementById('date-preview-title').textContent =
+    `${entries.length} existing entr${entries.length > 1 ? 'ies' : 'y'} on ${formatDate(date)}`;
+
+  document.getElementById('clone-btn').classList.toggle('hidden', date === todayISO());
+
+  document.getElementById('date-preview-body').innerHTML = `
+    <div class="preview-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Jira Item</th>
+            <th>Developer</th>
+            <th>Activity Details</th>
+            <th>Completion %</th>
+            <th>AI Usage %</th>
+            <th>AI Description</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${entries.map((e, i) => `
+            <tr>
+              <td><span class="jira-id">${esc(e.jiraId || '—')}</span></td>
+              <td><span class="dev-badge">${esc(e.developer)}</span></td>
+              <td>${esc(e.activityDetails)}</td>
+              <td>${e.completion}%</td>
+              <td>${e.aiUsage}%</td>
+              <td class="ai-desc-cell">${e.aiDescription ? esc(e.aiDescription) : '—'}</td>
+              <td><button type="button" class="btn-icon-edit" onclick="cloneOneEntry(${i})">Clone</button></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  card.classList.remove('hidden');
+}
+
+function cloneEntriesToToday() {
+  if (!datePreviewEntries.length) return;
+
+  const today = todayISO();
+  document.getElementById('entry-date').value = today;
+  rowCounter = 0;
+  document.getElementById('entry-rows').innerHTML = '';
+  datePreviewEntries.forEach(e => addEntryRow({
+    jiraItemId:      e.jiraItemId,
+    developer:       e.developer,
+    activityDetails: e.activityDetails,
+    completion:      e.completion,
+    aiUsage:         e.aiUsage,
+    aiDescription:   e.aiDescription,
+  }));
+  loadEntriesForDate(today);
+  const n = datePreviewEntries.length;
+  toast(`${n} row${n > 1 ? 's' : ''} cloned to today`);
+}
+
+function cloneOneEntry(index) {
+  const e = datePreviewEntries[index];
+  if (!e) return;
+
+  document.getElementById('entry-date').value = todayISO();
+
+  const rows = document.querySelectorAll('.entry-row');
+  const isEmptyGrid = rows.length === 1 &&
+    !rows[0].querySelector('.row-jira').value &&
+    !rows[0].querySelector('.row-activity').value;
+  if (isEmptyGrid) {
+    rowCounter = 0;
+    document.getElementById('entry-rows').innerHTML = '';
+  }
+
+  addEntryRow({
+    jiraItemId:      e.jiraItemId,
+    developer:       e.developer,
+    activityDetails: e.activityDetails,
+    completion:      e.completion,
+    aiUsage:         e.aiUsage,
+    aiDescription:   e.aiDescription,
+  });
+  loadEntriesForDate(todayISO());
+  toast('Row cloned to today');
 }

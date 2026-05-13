@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { v4: uuidv4 } = require('uuid');
 const { sql, getPool } = require('../db/connection');
+const { sendEntrySummary } = require('../utils/email');
 
 const router = Router();
 
@@ -31,6 +32,47 @@ async function resolveDeveloperId(db, name) {
   );
   return result.recordset[0]?.DeveloperId ?? null;
 }
+
+router.post('/batch', async (req, res) => {
+  const entries = req.body;
+  if (!Array.isArray(entries) || !entries.length)
+    return res.status(400).json({ error: 'entries array required' });
+
+  try {
+    const db   = await getPool();
+    const saved = [];
+
+    for (const entry of entries) {
+      const { jiraItemId, jiraId, jiraTitle, developer, entryDate, activityDetails, completion, aiUsage, aiDescription } = entry;
+      const id = uuidv4();
+      const developerId = await resolveDeveloperId(db, developer);
+      if (!developerId) return res.status(400).json({ error: `Developer "${developer}" not found` });
+
+      const request = db.request();
+      request.input('id',              sql.UniqueIdentifier,   id);
+      request.input('jiraItemId',      sql.UniqueIdentifier,   jiraItemId);
+      request.input('developerId',     sql.Int,                developerId);
+      request.input('entryDate',       sql.Date,               entryDate);
+      request.input('activityDetails', sql.NVarChar(sql.MAX),  activityDetails ?? null);
+      request.input('completion',      sql.TinyInt,            completion ?? 0);
+      request.input('aiUsage',         sql.TinyInt,            aiUsage ?? 0);
+      request.input('aiDescription',   sql.NVarChar(sql.MAX),  aiDescription ?? null);
+      await request.query(
+        `INSERT INTO dbo.ProjectTracker_Entries
+           (EntryId, JiraItemId, DeveloperId, EntryDate, ActivityDetails, Completion, AiUsage, AiDescription)
+         VALUES
+           (@id, @jiraItemId, @developerId, @entryDate, @activityDetails, @completion, @aiUsage, @aiDescription)`
+      );
+      saved.push({ id, jiraId, jiraTitle, developer, entryDate, activityDetails, completion, aiUsage, aiDescription });
+    }
+
+    sendEntrySummary(db, saved).catch(err => console.error('[Email] batch send failed:', err.message));
+
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 router.get('/', async (req, res) => {
   const { developer, dateFrom, dateTo, jiraItem } = req.query;
