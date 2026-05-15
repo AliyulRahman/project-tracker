@@ -29,7 +29,7 @@ function renderEntriesTable(entries) {
       <td style="white-space:nowrap">${formatDate(e.entryDate)}</td>
       <td><span class="jira-id">${esc(e.jiraId || '—')}</span></td>
       <td><span class="dev-badge">${esc(e.developer)}</span></td>
-      <td style="max-width:260px">${esc(e.activityDetails)}</td>
+      <td style="max-width:260px"><div class="clamp-3">${esc(e.activityDetails)}</div></td>
       <td>
         <div class="progress-bar"><div class="progress-fill completion" style="width:${e.completion}%"></div></div>
         <div class="progress-label">${e.completion}%</div>

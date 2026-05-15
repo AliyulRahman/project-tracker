@@ -37,8 +37,8 @@ function addEntryRow(data = {}) {
     <td><select class="row-jira cell-select">${jiraOptsHTML(data.jiraItemId || '')}</select></td>
     <td>${devCellHtml}</td>
     <td>
-      <input type="text" class="row-activity cell-text"
-        value="${esc(data.activityDetails || '')}" placeholder="One-line task summary…" maxlength="500">
+      <textarea class="row-activity cell-text cell-textarea"
+        placeholder="Activity details…" maxlength="500">${esc(data.activityDetails || '')}</textarea>
     </td>
     <td>
       <div class="pct-wrap">
