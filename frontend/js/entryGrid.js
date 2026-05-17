@@ -53,8 +53,8 @@ function addEntryRow(data = {}) {
       </div>
     </td>
     <td>
-      <input type="text" class="row-ai-desc cell-text"
-        value="${esc(data.aiDescription || '')}" placeholder="AI tool / approach used…">
+      <textarea class="row-ai-desc cell-text cell-textarea"
+        placeholder="AI tool / approach used…">${esc(data.aiDescription || '')}</textarea>
     </td>
     <td>
       <button type="button" class="row-del" onclick="removeEntryRow(${id})" title="Remove row">✕</button>

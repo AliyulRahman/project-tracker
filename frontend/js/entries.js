@@ -26,22 +26,14 @@ function renderEntriesTable(entries) {
   }
   tbody.innerHTML = entries.map(e => `
     <tr>
-      <td style="white-space:nowrap">${formatDate(e.entryDate)}</td>
+      <td class="col-date">${formatDate(e.entryDate)}</td>
       <td><span class="jira-id">${esc(e.jiraId || '—')}</span></td>
       <td><span class="dev-badge">${esc(e.developer)}</span></td>
-      <td style="max-width:260px"><div class="clamp-3">${esc(e.activityDetails)}</div></td>
-      <td>
-        <div class="progress-bar"><div class="progress-fill completion" style="width:${e.completion}%"></div></div>
-        <div class="progress-label">${e.completion}%</div>
-      </td>
-      <td>
-        <div class="progress-bar"><div class="progress-fill ai" style="width:${e.aiUsage}%"></div></div>
-        <div class="progress-label">${e.aiUsage}%</div>
-      </td>
-      <td style="max-width:180px;font-size:12px;color:var(--text-muted)">
-        ${e.aiDescription ? esc(e.aiDescription) : '<em style="opacity:.5">—</em>'}
-      </td>
-      <td style="white-space:nowrap">
+      <td class="cell-wrap">${esc(e.activityDetails)}</td>
+      <td class="col-pct-narrow">${e.completion}%</td>
+      <td class="col-pct-narrow">${e.aiUsage}%</td>
+      <td class="cell-wrap ai-desc-cell">${e.aiDescription ? esc(e.aiDescription) : '<em style="opacity:.5">—</em>'}</td>
+      <td class="col-actions">
         <button class="btn-icon-edit" onclick="editEntry('${e.id}')">Edit</button>
         <button class="btn-icon-del"  onclick="deleteEntry('${e.id}')">Del</button>
       </td>

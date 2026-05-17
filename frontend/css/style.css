@@ -757,6 +757,12 @@ a.jira-link:hover { text-decoration: underline; }
   vertical-align: top;
 }
 
+/* All Entries table column widths */
+.col-date        { white-space: nowrap; }
+.col-pct-narrow  { width: 80px; text-align: center; font-weight: 600; }
+.col-actions     { white-space: nowrap; }
+.cell-wrap       { white-space: pre-wrap; word-break: break-word; }
+
 /* 3-line clamp for activity details in All Entries table */
 .clamp-3 {
   display: -webkit-box;
